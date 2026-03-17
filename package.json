@@ -1,0 +1,40 @@
+{
+  "name": "openclaw-clawmagotchi-connector",
+  "version": "0.1.0",
+  "description": "Native OpenClaw plugin that emits safe Clawmagotchi activity events.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joel-n6/openclaw-clawmagotchi-connector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/joel-n6/openclaw-clawmagotchi-connector/issues"
+  },
+  "homepage": "https://github.com/joel-n6/openclaw-clawmagotchi-connector#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "index.ts",
+    "openclaw.plugin.json",
+    "src",
+    "README.md",
+    "LICENSE",
+    "tsconfig.json"
+  ],
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "node --import tsx --test src/**/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.2"
+  }
+}
