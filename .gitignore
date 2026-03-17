@@ -1,3 +1,30 @@
+# Node / TypeScript
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+.envrc
+
+# macOS / editor noise
+.DS_Store
+*.log
+
+# Workspace-private agent and memory files
+AGENTS.md
+SOUL.md
+IDENTITY.md
+USER.md
+MEMORY.md
+PRIVATE.md
+HEARTBEAT.md
+BOOTSTRAP.md
+memory/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -16,7 +43,6 @@ eggs/
 .eggs/
 lib/
 lib64/
-node_modules/
 parts/
 sdist/
 var/
