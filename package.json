@@ -18,10 +18,16 @@
   "files": [
     "index.ts",
     "openclaw.plugin.json",
-    "src",
+    "src/classify.ts",
+    "src/completion-metadata.ts",
+    "src/config.ts",
+    "src/git-context.ts",
+    "src/openclaw-types.ts",
+    "src/plugin.ts",
+    "src/sender.ts",
+    "src/types.ts",
     "README.md",
-    "LICENSE",
-    "tsconfig.json"
+    "LICENSE"
   ],
   "openclaw": {
     "extensions": [

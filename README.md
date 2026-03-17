@@ -41,6 +41,20 @@ openclaw plugins install openclaw-clawmagotchi-connector
 openclaw plugins enable openclaw-clawmagotchi-connector
 ```
 
+Then explicitly trust the plugin id in your OpenClaw config:
+
+```json
+{
+  "plugins": {
+    "allow": [
+      "openclaw-clawmagotchi-connector"
+    ]
+  }
+}
+```
+
+Without `plugins.allow`, OpenClaw may still discover and load the connector, but it will warn on restart that non-bundled plugins are not pinned to an explicit trusted list.
+
 ## Configure
 
 Add plugin config in your OpenClaw config:
@@ -48,6 +62,9 @@ Add plugin config in your OpenClaw config:
 ```json
 {
   "plugins": {
+    "allow": [
+      "openclaw-clawmagotchi-connector"
+    ],
     "entries": {
       "openclaw-clawmagotchi-connector": {
         "enabled": true,
