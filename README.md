@@ -34,7 +34,7 @@ Install through OpenClaw:
 
 ```bash
 openclaw plugins install openclaw-clawmagotchi-connector
-openclaw plugins enable clawmagotchi-connector
+openclaw plugins enable openclaw-clawmagotchi-connector
 ```
 
 ## Configure
@@ -45,7 +45,7 @@ Add plugin config in your OpenClaw config:
 {
   "plugins": {
     "entries": {
-      "clawmagotchi-connector": {
+      "openclaw-clawmagotchi-connector": {
         "enabled": true,
         "config": {
           "eventsUrl": "https://YOUR_PROJECT.supabase.co/functions/v1/events",

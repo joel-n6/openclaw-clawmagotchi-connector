@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { resolveConnectorConfig } from "./config.js";
+import { resolveConnectorConfig, resolveWorkspaceId } from "./config.js";
 
 test("resolveConnectorConfig accepts explicit config", () => {
   const result = resolveConnectorConfig({
@@ -27,4 +27,8 @@ test("resolveConnectorConfig reports missing required values", () => {
   }
 
   assert.equal(result.errors.length, 2);
+});
+
+test("resolveWorkspaceId falls back to the workspace directory name", () => {
+  assert.equal(resolveWorkspaceId(undefined, "/tmp/workspaces/clawmagotchi"), "clawmagotchi");
 });

@@ -24,7 +24,10 @@ function normalizeInteger(value: unknown, fallback: number, min: number, max: nu
   return Math.min(max, Math.max(min, value));
 }
 
-function inferWorkspaceId(explicitWorkspaceId: string | undefined, workspaceDir?: string): string | undefined {
+export function resolveWorkspaceId(
+  explicitWorkspaceId: string | undefined,
+  workspaceDir?: string,
+): string | undefined {
   if (explicitWorkspaceId) {
     return explicitWorkspaceId;
   }
@@ -48,12 +51,12 @@ export function resolveConnectorConfig(
   const errors: string[] = [];
   if (!eventsUrl) {
     errors.push(
-      "Missing events URL. Set plugins.entries.clawmagotchi-connector.config.eventsUrl or CLAWMAGOTCHI_EVENTS_URL.",
+      "Missing events URL. Set plugins.entries.openclaw-clawmagotchi-connector.config.eventsUrl or CLAWMAGOTCHI_EVENTS_URL.",
     );
   }
   if (!connectionToken) {
     errors.push(
-      "Missing connection token. Set plugins.entries.clawmagotchi-connector.config.connectionToken or CLAWMAGOTCHI_CONNECTION_TOKEN.",
+      "Missing connection token. Set plugins.entries.openclaw-clawmagotchi-connector.config.connectionToken or CLAWMAGOTCHI_CONNECTION_TOKEN.",
     );
   }
 
@@ -66,7 +69,7 @@ export function resolveConnectorConfig(
     config: {
       eventsUrl,
       connectionToken,
-      workspaceId: inferWorkspaceId(normalizeString(rawConfig?.workspaceId), workspaceDir),
+      workspaceId: resolveWorkspaceId(normalizeString(rawConfig?.workspaceId), workspaceDir),
       petId: normalizeString(rawConfig?.petId) ?? "default",
       userId: normalizeString(rawConfig?.userId),
       source: normalizeString(rawConfig?.source) ?? "openclaw",

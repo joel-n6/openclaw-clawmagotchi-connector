@@ -1,5 +1,5 @@
 {
-  "id": "clawmagotchi-connector",
+  "id": "openclaw-clawmagotchi-connector",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,

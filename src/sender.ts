@@ -55,7 +55,7 @@ async function postEvent(
     }
   }
 
-  logger.warn(`clawmagotchi-connector: failed to deliver ${event.type}: ${lastError ?? "unknown error"}`);
+  logger.warn(`openclaw-clawmagotchi-connector: failed to deliver ${event.type}: ${lastError ?? "unknown error"}`);
 }
 
 export function createEventSender(config: ConnectorConfig, logger: PluginLogger): EventSender {
@@ -85,7 +85,7 @@ export function createEventSender(config: ConnectorConfig, logger: PluginLogger)
     enqueue(event) {
       if (queue.length >= config.maxQueueSize) {
         logger.warn(
-          `clawmagotchi-connector: queue is full (${config.maxQueueSize}); dropping ${event.type}.`,
+          `openclaw-clawmagotchi-connector: queue is full (${config.maxQueueSize}); dropping ${event.type}.`,
         );
         return;
       }

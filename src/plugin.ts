@@ -1,5 +1,5 @@
 import { classifyTool, pickCompletionType, pickPrimaryCategory } from "./classify.js";
-import { resolveConnectorConfig } from "./config.js";
+import { resolveConnectorConfig, resolveWorkspaceId } from "./config.js";
 import { inspectGitContext } from "./git-context.js";
 import type {
   OpenClawPluginApi,
@@ -10,7 +10,7 @@ import type {
 import { createEventSender } from "./sender.js";
 import type { ActivityCategory, ConnectorEventType, SessionActivity } from "./types.js";
 
-const PLUGIN_ID = "clawmagotchi-connector";
+const PLUGIN_ID = "openclaw-clawmagotchi-connector";
 
 const CONFIG_SCHEMA = {
   type: "object",
@@ -133,7 +133,7 @@ export function createPlugin() {
       const configResult = resolveConnectorConfig(api.pluginConfig, undefined);
       if (!configResult.ok) {
         for (const error of configResult.errors) {
-          api.logger.warn(`clawmagotchi-connector: ${error}`);
+          api.logger.warn(`${PLUGIN_ID}: ${error}`);
         }
         return;
       }
@@ -154,7 +154,7 @@ export function createPlugin() {
         const session = ensureSession(
           sessions,
           sessionKey,
-          configResult.config.workspaceId,
+          resolveWorkspaceId(configResult.config.workspaceId, ctx.workspaceDir),
           ctx.channelId,
         );
         session.promptSeen = true;
@@ -254,7 +254,7 @@ export function createPlugin() {
         });
       });
 
-      api.logger.info("clawmagotchi-connector: plugin loaded");
+      api.logger.info(`${PLUGIN_ID}: plugin loaded`);
     },
   };
 }
