@@ -46,6 +46,20 @@
         "maximum": 500,
         "description": "Maximum in-memory event queue size before new events are dropped."
       },
+      "includeGitMetadata": {
+        "type": "boolean",
+        "description": "Opt-in to include lightweight git metadata such as repo, branch, and changed file count on completion events. Defaults to false."
+      },
+      "flushOnShutdown": {
+        "type": "boolean",
+        "description": "Attempt to flush queued events before the OpenClaw process exits. Defaults to true."
+      },
+      "shutdownFlushTimeoutMs": {
+        "type": "integer",
+        "minimum": 250,
+        "maximum": 30000,
+        "description": "Maximum time to wait for queued events to flush during shutdown before the process exits."
+      },
       "emitPromptSent": {
         "type": "boolean"
       },

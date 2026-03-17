@@ -4,6 +4,7 @@ import type { PluginLogger } from "./openclaw-types.js";
 
 type EventSender = {
   enqueue: (event: Omit<ConnectorEvent, "id" | "timestamp" | "version" | "source"> & { source?: string }) => void;
+  flush: (timeoutMs?: number, reason?: string) => Promise<boolean>;
 };
 
 function sleep(ms: number): Promise<void> {
@@ -58,17 +59,32 @@ async function postEvent(
   logger.warn(`openclaw-clawmagotchi-connector: failed to deliver ${event.type}: ${lastError ?? "unknown error"}`);
 }
 
-export function createEventSender(config: ConnectorConfig, logger: PluginLogger): EventSender {
-  const queue: ConnectorEvent[] = [];
-  let draining = false;
+type SenderOptions = {
+  installShutdownHandlers?: boolean;
+};
 
-  async function drain(): Promise<void> {
-    if (draining) {
-      return;
+function waitForTimeout(timeoutMs: number): Promise<false> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(false), timeoutMs);
+    timer.unref?.();
+  });
+}
+
+export function createEventSender(
+  config: ConnectorConfig,
+  logger: PluginLogger,
+  options: SenderOptions = {},
+): EventSender {
+  const queue: ConnectorEvent[] = [];
+  let drainPromise: Promise<void> | undefined;
+  const installShutdownHandlers = options.installShutdownHandlers ?? true;
+
+  function drain(): Promise<void> {
+    if (drainPromise) {
+      return drainPromise;
     }
 
-    draining = true;
-    try {
+    drainPromise = (async () => {
       while (queue.length > 0) {
         const next = queue.shift();
         if (!next) {
@@ -76,9 +92,73 @@ export function createEventSender(config: ConnectorConfig, logger: PluginLogger)
         }
         await postEvent(config, logger, next);
       }
-    } finally {
-      draining = false;
+    })().finally(() => {
+      drainPromise = undefined;
+    });
+
+    return drainPromise;
+  }
+
+  async function flush(
+    timeoutMs = config.shutdownFlushTimeoutMs,
+    reason = "manual",
+  ): Promise<boolean> {
+    if (queue.length === 0 && !drainPromise) {
+      return true;
     }
+
+    const drained = await Promise.race([
+      drain().then(() => true),
+      waitForTimeout(timeoutMs),
+    ]);
+
+    if (!drained) {
+      logger.warn(
+        `openclaw-clawmagotchi-connector: timed out flushing queued events during ${reason}; ${queue.length} event(s) remain.`,
+      );
+    }
+
+    return drained;
+  }
+
+  if (installShutdownHandlers && config.flushOnShutdown) {
+    type ShutdownSignal = "SIGINT" | "SIGTERM";
+
+    let shutdownStarted = false;
+
+    const flushForSignal = (signal: ShutdownSignal) => {
+      if (shutdownStarted) {
+        return;
+      }
+
+      shutdownStarted = true;
+      process.off(signal, onSignalHandlers[signal]);
+      void flush(config.shutdownFlushTimeoutMs, signal).finally(() => {
+        process.kill(process.pid, signal);
+      });
+    };
+
+    const onBeforeExit = () => {
+      if (shutdownStarted) {
+        return;
+      }
+
+      shutdownStarted = true;
+      void flush(config.shutdownFlushTimeoutMs, "beforeExit");
+    };
+
+    const onSignalHandlers: Record<ShutdownSignal, () => void> = {
+      SIGINT: () => {
+        flushForSignal("SIGINT");
+      },
+      SIGTERM: () => {
+        flushForSignal("SIGTERM");
+      },
+    };
+
+    process.once("beforeExit", onBeforeExit);
+    process.once("SIGINT", onSignalHandlers.SIGINT);
+    process.once("SIGTERM", onSignalHandlers.SIGTERM);
   }
 
   return {
@@ -100,5 +180,6 @@ export function createEventSender(config: ConnectorConfig, logger: PluginLogger)
 
       void drain();
     },
+    flush,
   };
 }

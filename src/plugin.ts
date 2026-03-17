@@ -1,4 +1,5 @@
 import { classifyTool, pickCompletionType, pickPrimaryCategory } from "./classify.js";
+import { buildCompletionMetadata } from "./completion-metadata.js";
 import { resolveConnectorConfig, resolveWorkspaceId } from "./config.js";
 import { inspectGitContext } from "./git-context.js";
 import type {
@@ -25,6 +26,9 @@ const CONFIG_SCHEMA = {
     timeoutMs: { type: "integer" },
     retryCount: { type: "integer" },
     maxQueueSize: { type: "integer" },
+    includeGitMetadata: { type: "boolean" },
+    flushOnShutdown: { type: "boolean" },
+    shutdownFlushTimeoutMs: { type: "integer" },
     emitPromptSent: { type: "boolean" },
     emitToolUsed: { type: "boolean" },
     emitTaskCompleted: { type: "boolean" },
@@ -230,7 +234,9 @@ export function createPlugin() {
           return;
         }
 
-        const gitContext = await inspectGitContext(ctx.workspaceDir);
+        const gitContext = configResult.config.includeGitMetadata
+          ? await inspectGitContext(ctx.workspaceDir)
+          : undefined;
         const primaryCategory = pickPrimaryCategory(session.categories) ?? "general";
 
         sender.enqueue({
@@ -243,13 +249,14 @@ export function createPlugin() {
           weight: completionType === "task_completed" ? 1 : 2,
           tags: buildCompletionTags(session.categories),
           metadata: {
-            category: primaryCategory,
-            durationSec:
-              typeof event.durationMs === "number" ? Math.max(1, Math.round(event.durationMs / 1000)) : undefined,
-            toolCount: session.toolCount,
-            repo: gitContext.repo,
-            branch: gitContext.branch,
-            filesChanged: gitContext.filesChanged,
+            ...buildCompletionMetadata({
+              category: primaryCategory,
+              durationSec:
+                typeof event.durationMs === "number" ? Math.max(1, Math.round(event.durationMs / 1000)) : undefined,
+              toolCount: session.toolCount,
+              includeGitMetadata: configResult.config.includeGitMetadata,
+              gitContext,
+            }),
           },
         });
       });

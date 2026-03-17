@@ -17,6 +17,9 @@ test("resolveConnectorConfig accepts explicit config", () => {
   assert.equal(result.config.workspaceId, "clawmagotchi");
   assert.equal(result.config.source, "openclaw");
   assert.equal(result.config.emitToolUsed, true);
+  assert.equal(result.config.includeGitMetadata, false);
+  assert.equal(result.config.flushOnShutdown, true);
+  assert.equal(result.config.shutdownFlushTimeoutMs, 5_000);
 });
 
 test("resolveConnectorConfig reports missing required values", () => {

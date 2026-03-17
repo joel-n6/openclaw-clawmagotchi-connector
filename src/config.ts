@@ -4,6 +4,7 @@ import type { ConnectorConfig } from "./types.js";
 const DEFAULT_TIMEOUT_MS = 5_000;
 const DEFAULT_RETRY_COUNT = 2;
 const DEFAULT_MAX_QUEUE_SIZE = 64;
+const DEFAULT_SHUTDOWN_FLUSH_TIMEOUT_MS = 5_000;
 
 type ResolveConfigResult =
   | { ok: true; config: ConnectorConfig }
@@ -76,6 +77,14 @@ export function resolveConnectorConfig(
       timeoutMs: normalizeInteger(rawConfig?.timeoutMs, DEFAULT_TIMEOUT_MS, 1_000, 30_000),
       retryCount: normalizeInteger(rawConfig?.retryCount, DEFAULT_RETRY_COUNT, 0, 5),
       maxQueueSize: normalizeInteger(rawConfig?.maxQueueSize, DEFAULT_MAX_QUEUE_SIZE, 1, 500),
+      includeGitMetadata: normalizeBoolean(rawConfig?.includeGitMetadata, false),
+      flushOnShutdown: normalizeBoolean(rawConfig?.flushOnShutdown, true),
+      shutdownFlushTimeoutMs: normalizeInteger(
+        rawConfig?.shutdownFlushTimeoutMs,
+        DEFAULT_SHUTDOWN_FLUSH_TIMEOUT_MS,
+        250,
+        30_000,
+      ),
       emitPromptSent: normalizeBoolean(rawConfig?.emitPromptSent, true),
       emitToolUsed: normalizeBoolean(rawConfig?.emitToolUsed, true),
       emitTaskCompleted: normalizeBoolean(rawConfig?.emitTaskCompleted, true),

@@ -21,7 +21,11 @@ The plugin is intentionally conservative:
 - no raw diffs
 - no secrets
 
-It only sends small metadata such as tool names, durations, workspace ids, and lightweight git context when available.
+It only sends small metadata such as tool names, durations, and workspace ids.
+
+Git metadata is privacy-safe by default:
+
+- repo, branch, and changed-file count are not sent unless you explicitly enable `includeGitMetadata`
 
 ## Install
 
@@ -71,6 +75,9 @@ Optional config:
 - `timeoutMs`
 - `retryCount`
 - `maxQueueSize`
+- `includeGitMetadata` (defaults to `false`)
+- `flushOnShutdown` (defaults to `true`)
+- `shutdownFlushTimeoutMs` (defaults to `5000`)
 - `emitPromptSent`
 - `emitToolUsed`
 - `emitTaskCompleted`
@@ -110,4 +117,11 @@ pnpm test
 
 - Treat the connection token as a write-scoped secret.
 - Prefer environment variables if you do not want the token stored in config.
+- Git metadata is opt-in. Leave `includeGitMetadata` unset unless you explicitly want repo context sent with completion events.
 - Review plugin behavior before installing it in a production OpenClaw setup.
+
+## Reliability notes
+
+- The sender retries transient failures and keeps a bounded in-memory queue.
+- On normal shutdown and common termination signals, the plugin attempts to flush queued events before exit.
+- Abrupt process crashes can still drop in-flight events because the queue is not yet disk-backed.

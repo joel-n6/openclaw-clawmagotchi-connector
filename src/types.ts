@@ -33,6 +33,9 @@ export type ConnectorConfig = {
   timeoutMs: number;
   retryCount: number;
   maxQueueSize: number;
+  includeGitMetadata: boolean;
+  flushOnShutdown: boolean;
+  shutdownFlushTimeoutMs: number;
   emitPromptSent: boolean;
   emitToolUsed: boolean;
   emitTaskCompleted: boolean;
