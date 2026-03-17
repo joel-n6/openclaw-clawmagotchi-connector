@@ -1,0 +1,66 @@
+{
+  "id": "clawmagotchi-connector",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "eventsUrl": {
+        "type": "string",
+        "description": "Clawmagotchi events endpoint, usually a Supabase functions URL ending in /events."
+      },
+      "connectionToken": {
+        "type": "string",
+        "description": "Scoped bearer token minted by the Clawmagotchi app's Connect OpenClaw flow."
+      },
+      "workspaceId": {
+        "type": "string",
+        "description": "Optional workspace id to include in emitted events. Defaults to the active OpenClaw workspace folder name when available."
+      },
+      "petId": {
+        "type": "string",
+        "description": "Optional pet id override. Defaults to \"default\"."
+      },
+      "userId": {
+        "type": "string",
+        "description": "Optional user id override. Usually unnecessary because the connection token resolves the user server-side."
+      },
+      "source": {
+        "type": "string",
+        "description": "Event source label. Defaults to \"openclaw\"."
+      },
+      "timeoutMs": {
+        "type": "integer",
+        "minimum": 1000,
+        "maximum": 30000,
+        "description": "HTTP timeout per event request."
+      },
+      "retryCount": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5,
+        "description": "Retry count for transient delivery failures."
+      },
+      "maxQueueSize": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 500,
+        "description": "Maximum in-memory event queue size before new events are dropped."
+      },
+      "emitPromptSent": {
+        "type": "boolean"
+      },
+      "emitToolUsed": {
+        "type": "boolean"
+      },
+      "emitTaskCompleted": {
+        "type": "boolean"
+      },
+      "emitResearchCompleted": {
+        "type": "boolean"
+      },
+      "emitCodingSessionCompleted": {
+        "type": "boolean"
+      }
+    }
+  }
+}
