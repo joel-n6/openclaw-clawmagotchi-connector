@@ -23,13 +23,33 @@ test("resolveConnectorConfig accepts explicit config", () => {
 });
 
 test("resolveConnectorConfig reports missing required values", () => {
-  const result = resolveConnectorConfig({});
-  assert.equal(result.ok, false);
-  if (result.ok) {
-    throw new Error("expected config resolution to fail");
-  }
+  const previousEventsUrl = process.env.CLAWMAGOTCHI_EVENTS_URL;
+  const previousConnectionToken = process.env.CLAWMAGOTCHI_CONNECTION_TOKEN;
 
-  assert.equal(result.errors.length, 2);
+  delete process.env.CLAWMAGOTCHI_EVENTS_URL;
+  delete process.env.CLAWMAGOTCHI_CONNECTION_TOKEN;
+
+  try {
+    const result = resolveConnectorConfig({});
+    assert.equal(result.ok, false);
+    if (result.ok) {
+      throw new Error("expected config resolution to fail");
+    }
+
+    assert.equal(result.errors.length, 2);
+  } finally {
+    if (previousEventsUrl === undefined) {
+      delete process.env.CLAWMAGOTCHI_EVENTS_URL;
+    } else {
+      process.env.CLAWMAGOTCHI_EVENTS_URL = previousEventsUrl;
+    }
+
+    if (previousConnectionToken === undefined) {
+      delete process.env.CLAWMAGOTCHI_CONNECTION_TOKEN;
+    } else {
+      process.env.CLAWMAGOTCHI_CONNECTION_TOKEN = previousConnectionToken;
+    }
+  }
 });
 
 test("resolveWorkspaceId falls back to the workspace directory name", () => {
