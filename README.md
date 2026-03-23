@@ -41,6 +41,8 @@ openclaw plugins install openclaw-clawmagotchi-connector
 openclaw plugins enable openclaw-clawmagotchi-connector
 ```
 
+If `openclaw plugins install openclaw-clawmagotchi-connector` reports a `plugins.allow` validation error, continue with the `enable` step above, then add the plugin id to `plugins.allow`, and restart the gateway. Some OpenClaw versions validate trust settings before the install record is fully written.
+
 Then explicitly trust the plugin id in your OpenClaw config:
 
 ```json
