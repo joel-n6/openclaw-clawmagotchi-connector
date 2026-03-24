@@ -22,6 +22,37 @@ test("resolveConnectorConfig accepts explicit config", () => {
   assert.equal(result.config.shutdownFlushTimeoutMs, 5_000);
 });
 
+test("resolveConnectorConfig accepts CLAWMAGOTCHI env vars by default", () => {
+  const previousEventsUrl = process.env.CLAWMAGOTCHI_EVENTS_URL;
+  const previousConnectionToken = process.env.CLAWMAGOTCHI_CONNECTION_TOKEN;
+
+  process.env.CLAWMAGOTCHI_EVENTS_URL = "https://example.supabase.co/functions/v1/events";
+  process.env.CLAWMAGOTCHI_CONNECTION_TOKEN = "claw_link_secret";
+
+  try {
+    const result = resolveConnectorConfig(undefined);
+    assert.equal(result.ok, true);
+    if (!result.ok) {
+      throw new Error("expected config to resolve from environment");
+    }
+
+    assert.equal(result.config.eventsUrl, "https://example.supabase.co/functions/v1/events");
+    assert.equal(result.config.connectionToken, "claw_link_secret");
+  } finally {
+    if (previousEventsUrl === undefined) {
+      delete process.env.CLAWMAGOTCHI_EVENTS_URL;
+    } else {
+      process.env.CLAWMAGOTCHI_EVENTS_URL = previousEventsUrl;
+    }
+
+    if (previousConnectionToken === undefined) {
+      delete process.env.CLAWMAGOTCHI_CONNECTION_TOKEN;
+    } else {
+      process.env.CLAWMAGOTCHI_CONNECTION_TOKEN = previousConnectionToken;
+    }
+  }
+});
+
 test("resolveConnectorConfig reports missing required values", () => {
   const previousEventsUrl = process.env.CLAWMAGOTCHI_EVENTS_URL;
   const previousConnectionToken = process.env.CLAWMAGOTCHI_CONNECTION_TOKEN;

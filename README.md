@@ -59,7 +59,38 @@ Without `plugins.allow`, OpenClaw may still discover and load the connector, but
 
 ## Configure
 
-Add plugin config in your OpenClaw config:
+By default, the connector reads these two environment variables:
+
+- `CLAWMAGOTCHI_EVENTS_URL`
+- `CLAWMAGOTCHI_CONNECTION_TOKEN`
+
+This is the recommended setup, and it matches the Clawmagotchi iOS app's copy/share flow.
+
+Example `.env`:
+
+```dotenv
+CLAWMAGOTCHI_CONNECTION_TOKEN="claw_link_..."
+CLAWMAGOTCHI_EVENTS_URL="https://YOUR_PROJECT.supabase.co/functions/v1/events"
+```
+
+Then enable the plugin in your OpenClaw config:
+
+```json
+{
+  "plugins": {
+    "allow": [
+      "openclaw-clawmagotchi-connector"
+    ],
+    "entries": {
+      "openclaw-clawmagotchi-connector": {
+        "enabled": true
+      }
+    }
+  }
+}
+```
+
+If you prefer, you can also set the sensitive values directly in plugin config:
 
 ```json
 {
@@ -81,10 +112,7 @@ Add plugin config in your OpenClaw config:
 }
 ```
 
-You can also provide the two sensitive values with environment variables instead of config:
-
-- `CLAWMAGOTCHI_EVENTS_URL`
-- `CLAWMAGOTCHI_CONNECTION_TOKEN`
+When both are present, explicit plugin config wins over environment variables.
 
 Optional config:
 

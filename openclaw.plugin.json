@@ -6,11 +6,11 @@
     "properties": {
       "eventsUrl": {
         "type": "string",
-        "description": "Clawmagotchi events endpoint, usually a Supabase functions URL ending in /events."
+        "description": "Clawmagotchi events endpoint, usually a Supabase functions URL ending in /events. Defaults to CLAWMAGOTCHI_EVENTS_URL when unset in plugin config."
       },
       "connectionToken": {
         "type": "string",
-        "description": "Scoped bearer token minted by the Clawmagotchi app's Connect OpenClaw flow."
+        "description": "Scoped bearer token minted by the Clawmagotchi app's Connect OpenClaw flow. Defaults to CLAWMAGOTCHI_CONNECTION_TOKEN when unset in plugin config."
       },
       "workspaceId": {
         "type": "string",
