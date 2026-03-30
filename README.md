@@ -154,6 +154,80 @@ The connector now supports a safe metadata detail dial:
 - `medium`: recommended default, with enough context to make the activity stream useful
 - `high`: richer safe summaries such as tool lists, session counts, and prompt-length buckets
 
+How to change it:
+
+Set `detailLevel` in the plugin config:
+
+```json
+{
+  "plugins": {
+    "entries": {
+      "openclaw-clawmagotchi-connector": {
+        "enabled": true,
+        "config": {
+          "detailLevel": "medium"
+        }
+      }
+    }
+  }
+}
+```
+
+Examples:
+
+Use `low` if you want the smallest reasonable stream:
+
+```json
+{
+  "plugins": {
+    "entries": {
+      "openclaw-clawmagotchi-connector": {
+        "enabled": true,
+        "config": {
+          "detailLevel": "low"
+        }
+      }
+    }
+  }
+}
+```
+
+Use `medium` for the recommended default:
+
+```json
+{
+  "plugins": {
+    "entries": {
+      "openclaw-clawmagotchi-connector": {
+        "enabled": true,
+        "config": {
+          "detailLevel": "medium"
+        }
+      }
+    }
+  }
+}
+```
+
+Use `high` if you want richer safe summaries:
+
+```json
+{
+  "plugins": {
+    "entries": {
+      "openclaw-clawmagotchi-connector": {
+        "enabled": true,
+        "config": {
+          "detailLevel": "high"
+        }
+      }
+    }
+  }
+}
+```
+
+If `detailLevel` is omitted, the connector uses `medium`.
+
 All levels still avoid:
 - prompt text
 - transcript text
