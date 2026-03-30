@@ -116,6 +116,7 @@ When both are present, explicit plugin config wins over environment variables.
 
 Optional config:
 
+- `detailLevel` (`low`, `medium`, `high`; defaults to `medium`)
 - `petId`
 - `userId`
 - `source`
@@ -144,6 +145,35 @@ Completion type is inferred from the tools used during the run:
 - coding-heavy tools -> `coding_session_completed`
 - research-heavy tools -> `research_completed`
 - everything else -> `task_completed`
+
+## Detail levels
+
+The connector now supports a safe metadata detail dial:
+
+- `low`: minimal product signal only
+- `medium`: recommended default, with enough context to make the activity stream useful
+- `high`: richer safe summaries such as tool lists, session counts, and prompt-length buckets
+
+All levels still avoid:
+- prompt text
+- transcript text
+- command output
+- file contents
+- raw diffs
+- secrets
+
+Examples:
+
+- `low`
+  - prompt events carry only a broad category
+  - tool events carry tool name and category
+  - completion events carry category and tool count
+- `medium`
+  - adds provider/channel, durations, session duration, category list, and unique tool count
+- `high`
+  - adds tool lists, success/failure tool counts, prompt-length bucket, tool call id, parameter-key count, and result kind
+
+`includeGitMetadata` remains a separate opt-in and still defaults to `false`.
 
 ## Development
 

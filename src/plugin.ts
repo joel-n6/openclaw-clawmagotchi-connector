@@ -1,7 +1,7 @@
 import { classifyTool, pickCompletionType, pickPrimaryCategory } from "./classify.js";
-import { buildCompletionMetadata } from "./completion-metadata.js";
 import { resolveConnectorConfig, resolveWorkspaceId } from "./config.js";
 import { inspectGitContext } from "./git-context.js";
+import { buildCompletionMetadata, buildPromptMetadata, buildToolMetadata } from "./metadata.js";
 import type {
   OpenClawPluginApi,
   PluginHookAgentContext,
@@ -19,6 +19,7 @@ const CONFIG_SCHEMA = {
   properties: {
     eventsUrl: { type: "string" },
     connectionToken: { type: "string" },
+    detailLevel: { type: "string", enum: ["low", "medium", "high"] },
     workspaceId: { type: "string" },
     petId: { type: "string" },
     userId: { type: "string" },
@@ -57,16 +58,19 @@ function ensureSession(
 ): SessionActivity {
   let session = sessions.get(sessionId);
   if (!session) {
-    session = {
-      sessionId,
-      workspaceId,
-      promptSeen: false,
-      channelId,
-      startedAt: Date.now(),
-      toolCount: 0,
-      categories: new Set<ActivityCategory>(),
-      tools: new Set<string>(),
-    };
+      session = {
+        sessionId,
+        workspaceId,
+        promptSeen: false,
+        channelId,
+        provider: undefined,
+        startedAt: Date.now(),
+        toolCount: 0,
+        successfulToolCount: 0,
+        failedToolCount: 0,
+        categories: new Set<ActivityCategory>(),
+        tools: new Set<string>(),
+      };
     sessions.set(sessionId, session);
   }
 
@@ -162,6 +166,7 @@ export function createPlugin() {
           ctx.channelId,
         );
         session.promptSeen = true;
+        session.provider = ctx.messageProvider ?? session.provider;
 
         if (!configResult.config.emitPromptSent) {
           return;
@@ -176,11 +181,7 @@ export function createPlugin() {
           outcome: "info",
           weight: 1,
           tags: ctx.channelId ? ["communication"] : [],
-          metadata: {
-            channel: ctx.channelId,
-            trigger: ctx.trigger ?? "user",
-            category: "general",
-          },
+          metadata: buildPromptMetadata(configResult.config.detailLevel, _event, ctx),
         });
       });
 
@@ -191,6 +192,11 @@ export function createPlugin() {
         }
 
         const classification = classifyTool(event.toolName || ctx.toolName);
+        if (event.error) {
+          session.failedToolCount += 1;
+        } else {
+          session.successfulToolCount += 1;
+        }
         sender.enqueue({
           type: "tool_used",
           userId: configResult.config.userId,
@@ -200,13 +206,12 @@ export function createPlugin() {
           outcome: event.error ? "failure" : "success",
           weight: event.error ? 0.5 : 1,
           tags: classification.tags,
-          metadata: {
-            tool: event.toolName || ctx.toolName,
-            count: 1,
-            category: classification.category ?? "automation",
-            durationSec:
-              typeof event.durationMs === "number" ? Math.max(0, Math.round(event.durationMs / 100) / 10) : undefined,
-          },
+          metadata: buildToolMetadata({
+            detailLevel: configResult.config.detailLevel,
+            event,
+            toolName: event.toolName || ctx.toolName,
+            classification,
+          }),
         });
       });
 
@@ -248,16 +253,22 @@ export function createPlugin() {
           outcome: "success",
           weight: completionType === "task_completed" ? 1 : 2,
           tags: buildCompletionTags(session.categories),
-          metadata: {
-            ...buildCompletionMetadata({
-              category: primaryCategory,
-              durationSec:
-                typeof event.durationMs === "number" ? Math.max(1, Math.round(event.durationMs / 1000)) : undefined,
-              toolCount: session.toolCount,
-              includeGitMetadata: configResult.config.includeGitMetadata,
-              gitContext,
-            }),
-          },
+          metadata: buildCompletionMetadata({
+            detailLevel: configResult.config.detailLevel,
+            category: primaryCategory,
+            durationSec:
+              typeof event.durationMs === "number" ? Math.max(1, Math.round(event.durationMs / 1000)) : undefined,
+            sessionDurationSec: Math.max(1, Math.round((Date.now() - session.startedAt) / 1000)),
+            toolCount: session.toolCount,
+            includeGitMetadata: configResult.config.includeGitMetadata,
+            gitContext,
+            categories: session.categories,
+            tools: session.tools,
+            successfulToolCount: session.successfulToolCount,
+            failedToolCount: session.failedToolCount,
+            provider: session.provider,
+            channelId: session.channelId,
+          }),
         });
       });
 

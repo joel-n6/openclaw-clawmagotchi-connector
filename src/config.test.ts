@@ -16,6 +16,7 @@ test("resolveConnectorConfig accepts explicit config", () => {
 
   assert.equal(result.config.workspaceId, "clawmagotchi");
   assert.equal(result.config.source, "openclaw");
+  assert.equal(result.config.detailLevel, "medium");
   assert.equal(result.config.emitToolUsed, true);
   assert.equal(result.config.includeGitMetadata, false);
   assert.equal(result.config.flushOnShutdown, true);
@@ -85,4 +86,19 @@ test("resolveConnectorConfig reports missing required values", () => {
 
 test("resolveWorkspaceId falls back to the workspace directory name", () => {
   assert.equal(resolveWorkspaceId(undefined, "/tmp/workspaces/clawmagotchi"), "clawmagotchi");
+});
+
+test("resolveConnectorConfig accepts explicit detail levels", () => {
+  const result = resolveConnectorConfig({
+    eventsUrl: "https://example.supabase.co/functions/v1/events",
+    connectionToken: "claw_link_secret",
+    detailLevel: "high",
+  });
+
+  assert.equal(result.ok, true);
+  if (!result.ok) {
+    throw new Error("expected config to resolve");
+  }
+
+  assert.equal(result.config.detailLevel, "high");
 });

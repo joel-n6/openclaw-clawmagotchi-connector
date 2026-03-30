@@ -6,6 +6,7 @@ export type ConnectorEventType =
   | "coding_session_completed";
 
 export type ConnectorOutcome = "success" | "failure" | "partial" | "info";
+export type DetailLevel = "low" | "medium" | "high";
 
 export type ConnectorEvent = {
   id: string;
@@ -26,6 +27,7 @@ export type ConnectorEvent = {
 export type ConnectorConfig = {
   eventsUrl: string;
   connectionToken: string;
+  detailLevel: DetailLevel;
   workspaceId?: string;
   petId?: string;
   userId?: string;
@@ -48,8 +50,11 @@ export type SessionActivity = {
   workspaceId?: string;
   promptSeen: boolean;
   channelId?: string;
+  provider?: string;
   startedAt: number;
   toolCount: number;
+  successfulToolCount: number;
+  failedToolCount: number;
   categories: Set<ActivityCategory>;
   tools: Set<string>;
 };

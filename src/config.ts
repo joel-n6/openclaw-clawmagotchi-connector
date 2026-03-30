@@ -25,6 +25,10 @@ function normalizeInteger(value: unknown, fallback: number, min: number, max: nu
   return Math.min(max, Math.max(min, value));
 }
 
+function normalizeDetailLevel(value: unknown): ConnectorConfig["detailLevel"] {
+  return value === "low" || value === "medium" || value === "high" ? value : "medium";
+}
+
 export function resolveWorkspaceId(
   explicitWorkspaceId: string | undefined,
   workspaceDir?: string,
@@ -70,6 +74,7 @@ export function resolveConnectorConfig(
     config: {
       eventsUrl,
       connectionToken,
+      detailLevel: normalizeDetailLevel(rawConfig?.detailLevel),
       workspaceId: resolveWorkspaceId(normalizeString(rawConfig?.workspaceId), workspaceDir),
       petId: normalizeString(rawConfig?.petId) ?? "default",
       userId: normalizeString(rawConfig?.userId),
