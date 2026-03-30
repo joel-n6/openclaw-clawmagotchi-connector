@@ -12,6 +12,11 @@
         "type": "string",
         "description": "Scoped bearer token minted by the Clawmagotchi app's Connect OpenClaw flow. Defaults to CLAWMAGOTCHI_CONNECTION_TOKEN when unset in plugin config."
       },
+      "detailLevel": {
+        "type": "string",
+        "enum": ["low", "medium", "high"],
+        "description": "How much safe metadata to include with events. `medium` is the default and recommended balance."
+      },
       "workspaceId": {
         "type": "string",
         "description": "Optional workspace id to include in emitted events. Defaults to the active OpenClaw workspace folder name when available."

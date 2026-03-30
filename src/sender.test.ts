@@ -6,6 +6,7 @@ import type { ConnectorConfig } from "./types.js";
 const baseConfig: ConnectorConfig = {
   eventsUrl: "https://example.supabase.co/functions/v1/events",
   connectionToken: "claw_link_secret",
+  detailLevel: "medium",
   workspaceId: "clawmagotchi",
   petId: "default",
   userId: undefined,
