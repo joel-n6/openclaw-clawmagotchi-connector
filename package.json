@@ -1,6 +1,6 @@
 {
   "name": "openclaw-clawmagotchi-connector",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Native OpenClaw plugin that emits safe Clawmagotchi activity events.",
   "type": "module",
   "license": "MIT",
