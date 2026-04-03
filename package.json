@@ -30,7 +30,6 @@
     "README.md",
     "LICENSE"
   ],
-  "bin": "./scripts/configure.mjs",
   "openclaw": {
     "extensions": [
       "./index.ts"
