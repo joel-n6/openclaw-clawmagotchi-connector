@@ -66,14 +66,13 @@ Recommended path:
 ```bash
 openclaw plugins install openclaw-clawmagotchi-connector
 node ~/.openclaw/extensions/openclaw-clawmagotchi-connector/scripts/configure.mjs \
-  --events-url "https://YOUR_PROJECT.supabase.co/functions/v1/events" \
   --connection-token "claw_link_..."
 ```
 
 What that does:
 
 - enables the plugin
-- writes `eventsUrl` into `plugins.entries.openclaw-clawmagotchi-connector.config`
+- writes the built-in Clawmagotchi production events URL into `plugins.entries.openclaw-clawmagotchi-connector.config`
 - writes `connectionToken` into `plugins.entries.openclaw-clawmagotchi-connector.config`
 - restarts the gateway
 
@@ -81,6 +80,7 @@ This is the most reliable setup for real users, especially on macOS where OpenCl
 
 Optional flags:
 
+- `--events-url https://...` for non-production or temporary override cases
 - `--workspace-id clawmagotchi`
 - `--detail-level medium`
 - `--no-restart`
@@ -88,18 +88,17 @@ Optional flags:
 
 ### Environment fallback
 
-The connector can also read these two environment variables:
+The connector can also read these environment variables:
 
-- `CLAWMAGOTCHI_EVENTS_URL`
 - `CLAWMAGOTCHI_CONNECTION_TOKEN`
+- `CLAWMAGOTCHI_EVENTS_URL` as an advanced override only
 
-This is still useful for local development, but it is not the preferred production path for ordinary users because supervised OpenClaw services may not pick up newly rotated values until they are persisted in plugin config.
+For ordinary users, the token is the only required setting. The production events URL is built into the connector. `CLAWMAGOTCHI_EVENTS_URL` remains available only for development or temporary backend override cases.
 
 Example `.env`:
 
 ```dotenv
 CLAWMAGOTCHI_CONNECTION_TOKEN="claw_link_..."
-CLAWMAGOTCHI_EVENTS_URL="https://YOUR_PROJECT.supabase.co/functions/v1/events"
 ```
 
 Then enable the plugin in your OpenClaw config:
@@ -131,7 +130,6 @@ If you prefer to do the persisted setup manually, you can also set the sensitive
       "openclaw-clawmagotchi-connector": {
         "enabled": true,
         "config": {
-          "eventsUrl": "https://YOUR_PROJECT.supabase.co/functions/v1/events",
           "connectionToken": "claw_link_...",
           "workspaceId": "clawmagotchi"
         }
@@ -146,7 +144,6 @@ When both are present, explicit plugin config wins over environment variables.
 Manual persisted setup via CLI:
 
 ```bash
-openclaw config set plugins.entries.openclaw-clawmagotchi-connector.config.eventsUrl "https://YOUR_PROJECT.supabase.co/functions/v1/events"
 openclaw config set plugins.entries.openclaw-clawmagotchi-connector.config.connectionToken "claw_link_..."
 openclaw gateway restart
 ```

@@ -1,6 +1,8 @@
 import path from "node:path";
 import type { ConnectorConfig } from "./types.js";
 
+export const DEFAULT_EVENTS_URL = "https://uelzhzlvcuvsbxozpyov.supabase.co/functions/v1/events";
+
 const DEFAULT_TIMEOUT_MS = 5_000;
 const DEFAULT_RETRY_COUNT = 2;
 const DEFAULT_MAX_QUEUE_SIZE = 64;
@@ -72,21 +74,16 @@ export function resolveConnectorConfig(
   rawConfig: Record<string, unknown> | undefined,
   workspaceDir?: string,
 ): ResolveConfigResult {
-  const eventsUrl = resolveStringWithSource(
-    rawConfig?.eventsUrl,
-    process.env.CLAWMAGOTCHI_EVENTS_URL,
-  );
+  const eventsUrl =
+    resolveStringWithSource(rawConfig?.eventsUrl, process.env.CLAWMAGOTCHI_EVENTS_URL).value
+      ? resolveStringWithSource(rawConfig?.eventsUrl, process.env.CLAWMAGOTCHI_EVENTS_URL)
+      : { value: DEFAULT_EVENTS_URL, source: "plugin_config" as const };
   const connectionToken = resolveStringWithSource(
     rawConfig?.connectionToken,
     process.env.CLAWMAGOTCHI_CONNECTION_TOKEN,
   );
 
   const errors: string[] = [];
-  if (!eventsUrl.value) {
-    errors.push(
-      "Missing events URL. Set plugins.entries.openclaw-clawmagotchi-connector.config.eventsUrl or CLAWMAGOTCHI_EVENTS_URL.",
-    );
-  }
   if (!connectionToken.value) {
     errors.push(
       "Missing connection token. Set plugins.entries.openclaw-clawmagotchi-connector.config.connectionToken or CLAWMAGOTCHI_CONNECTION_TOKEN.",

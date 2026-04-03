@@ -6,11 +6,11 @@
     "properties": {
       "eventsUrl": {
         "type": "string",
-        "description": "Clawmagotchi events endpoint, usually a Supabase functions URL ending in /events. Persist this in plugin config for production installs. CLAWMAGOTCHI_EVENTS_URL remains available as a development fallback."
+        "description": "Advanced override for the Clawmagotchi events endpoint. Most users should not set this because the production backend URL is built into the connector."
       },
       "connectionToken": {
         "type": "string",
-        "description": "Scoped bearer token minted by the Clawmagotchi app's Connect OpenClaw flow. Persist this in plugin config for production installs. CLAWMAGOTCHI_CONNECTION_TOKEN remains available as a development fallback."
+        "description": "Scoped bearer token minted by the Clawmagotchi app's Connect OpenClaw flow. This is the main user-provided setting and should be persisted in plugin config for production installs."
       },
       "detailLevel": {
         "type": "string",

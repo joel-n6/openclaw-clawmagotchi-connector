@@ -3,10 +3,11 @@
 import { spawnSync } from "node:child_process";
 
 const PLUGIN_ID = "openclaw-clawmagotchi-connector";
+const DEFAULT_EVENTS_URL = "https://uelzhzlvcuvsbxozpyov.supabase.co/functions/v1/events";
 
 function parseArgs(argv) {
   const parsed = {
-    eventsUrl: undefined,
+    eventsUrl: DEFAULT_EVENTS_URL,
     connectionToken: undefined,
     workspaceId: undefined,
     detailLevel: undefined,
@@ -17,11 +18,11 @@ function parseArgs(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     switch (arg) {
-      case "--events-url":
-        parsed.eventsUrl = argv[++index];
-        break;
       case "--connection-token":
         parsed.connectionToken = argv[++index];
+        break;
+      case "--events-url":
+        parsed.eventsUrl = argv[++index];
         break;
       case "--workspace-id":
         parsed.workspaceId = argv[++index];
@@ -45,8 +46,8 @@ function parseArgs(argv) {
     }
   }
 
-  if (!parsed.eventsUrl || !parsed.connectionToken) {
-    console.error("Missing required --events-url or --connection-token.");
+  if (!parsed.connectionToken) {
+    console.error("Missing required --connection-token.");
     printHelp(1);
   }
 
@@ -59,9 +60,10 @@ function printHelp(exitCode) {
       "Configure the Clawmagotchi OpenClaw connector with persisted plugin config.",
       "",
       "Usage:",
-      "  node scripts/configure.mjs --events-url <url> --connection-token <token> [options]",
+      "  node scripts/configure.mjs --connection-token <token> [options]",
       "",
       "Options:",
+      `  --events-url <url>     Override the built-in Clawmagotchi backend URL`,
       "  --workspace-id <id>   Persist a workspace id override",
       "  --detail-level <lvl>  Persist low, medium, or high detail level",
       "  --no-enable           Skip `openclaw plugins enable`",
@@ -139,7 +141,7 @@ if (options.restart) {
 console.log(
   [
     `Configured ${PLUGIN_ID}.`,
-    `eventsUrl persisted to plugin config.`,
+    `eventsUrl persisted to plugin config (${options.eventsUrl}).`,
     `token persisted to plugin config (${tokenPreview(options.connectionToken)}).`,
     options.restart ? "Gateway restarted." : "Remember to restart the gateway before testing.",
   ].join(" "),
