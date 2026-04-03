@@ -30,9 +30,7 @@
     "README.md",
     "LICENSE"
   ],
-  "bin": {
-    "clawmagotchi-openclaw-configure": "./scripts/configure.mjs"
-  },
+  "bin": "./scripts/configure.mjs",
   "openclaw": {
     "extensions": [
       "./index.ts"
