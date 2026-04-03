@@ -88,6 +88,10 @@ function buildCompletionTags(categories: Set<ActivityCategory>): string[] {
   return Array.from(categories);
 }
 
+function isLikelyManagedMacService(): boolean {
+  return process.platform === "darwin" && Boolean(process.env.XPC_SERVICE_NAME?.trim());
+}
+
 function completionTypeEnabled(type: ConnectorEventType, flags: {
   emitTaskCompleted: boolean;
   emitResearchCompleted: boolean;
@@ -148,6 +152,20 @@ export function createPlugin() {
 
       const sender = createEventSender(configResult.config, api.logger);
       const sessions = new Map<string, SessionActivity>();
+
+      api.logger.info(
+        `${PLUGIN_ID}: config loaded (eventsUrl=${configResult.config.eventsUrlSource}, token=${configResult.config.connectionTokenSource}:${configResult.config.connectionTokenPreview})`,
+      );
+
+      if (
+        isLikelyManagedMacService() &&
+        (configResult.config.eventsUrlSource === "environment" ||
+          configResult.config.connectionTokenSource === "environment")
+      ) {
+        api.logger.warn(
+          `${PLUGIN_ID}: running under a managed macOS service with env-backed config. For production reliability, persist eventsUrl and connectionToken under plugins.entries.${PLUGIN_ID}.config and restart the gateway.`,
+        );
+      }
 
       api.on("before_model_resolve", (_event, ctx: PluginHookAgentContext) => {
         if (!shouldTrackTrigger(ctx.trigger)) {

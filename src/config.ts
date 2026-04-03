@@ -29,6 +29,31 @@ function normalizeDetailLevel(value: unknown): ConnectorConfig["detailLevel"] {
   return value === "low" || value === "medium" || value === "high" ? value : "medium";
 }
 
+function resolveStringWithSource(
+  explicitValue: unknown,
+  envValue: string | undefined,
+): { value?: string; source?: ConnectorConfig["eventsUrlSource"] } {
+  const configValue = normalizeString(explicitValue);
+  if (configValue) {
+    return { value: configValue, source: "plugin_config" };
+  }
+
+  const normalizedEnvValue = normalizeString(envValue);
+  if (normalizedEnvValue) {
+    return { value: normalizedEnvValue, source: "environment" };
+  }
+
+  return {};
+}
+
+function previewToken(token: string): string {
+  if (token.length <= 12) {
+    return token;
+  }
+
+  return `${token.slice(0, 12)}...${token.slice(-4)}`;
+}
+
 export function resolveWorkspaceId(
   explicitWorkspaceId: string | undefined,
   workspaceDir?: string,
@@ -47,33 +72,45 @@ export function resolveConnectorConfig(
   rawConfig: Record<string, unknown> | undefined,
   workspaceDir?: string,
 ): ResolveConfigResult {
-  const eventsUrl =
-    normalizeString(rawConfig?.eventsUrl) ?? normalizeString(process.env.CLAWMAGOTCHI_EVENTS_URL);
-  const connectionToken =
-    normalizeString(rawConfig?.connectionToken) ??
-    normalizeString(process.env.CLAWMAGOTCHI_CONNECTION_TOKEN);
+  const eventsUrl = resolveStringWithSource(
+    rawConfig?.eventsUrl,
+    process.env.CLAWMAGOTCHI_EVENTS_URL,
+  );
+  const connectionToken = resolveStringWithSource(
+    rawConfig?.connectionToken,
+    process.env.CLAWMAGOTCHI_CONNECTION_TOKEN,
+  );
 
   const errors: string[] = [];
-  if (!eventsUrl) {
+  if (!eventsUrl.value) {
     errors.push(
       "Missing events URL. Set plugins.entries.openclaw-clawmagotchi-connector.config.eventsUrl or CLAWMAGOTCHI_EVENTS_URL.",
     );
   }
-  if (!connectionToken) {
+  if (!connectionToken.value) {
     errors.push(
       "Missing connection token. Set plugins.entries.openclaw-clawmagotchi-connector.config.connectionToken or CLAWMAGOTCHI_CONNECTION_TOKEN.",
     );
   }
 
-  if (errors.length > 0 || !eventsUrl || !connectionToken) {
+  if (
+    errors.length > 0 ||
+    !eventsUrl.value ||
+    !eventsUrl.source ||
+    !connectionToken.value ||
+    !connectionToken.source
+  ) {
     return { ok: false, errors };
   }
 
   return {
     ok: true,
     config: {
-      eventsUrl,
-      connectionToken,
+      eventsUrl: eventsUrl.value,
+      connectionToken: connectionToken.value,
+      eventsUrlSource: eventsUrl.source,
+      connectionTokenSource: connectionToken.source,
+      connectionTokenPreview: previewToken(connectionToken.value),
       detailLevel: normalizeDetailLevel(rawConfig?.detailLevel),
       workspaceId: resolveWorkspaceId(normalizeString(rawConfig?.workspaceId), workspaceDir),
       petId: normalizeString(rawConfig?.petId) ?? "default",

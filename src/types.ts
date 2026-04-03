@@ -7,6 +7,7 @@ export type ConnectorEventType =
 
 export type ConnectorOutcome = "success" | "failure" | "partial" | "info";
 export type DetailLevel = "low" | "medium" | "high";
+export type ConfigValueSource = "plugin_config" | "environment";
 
 export type ConnectorEvent = {
   id: string;
@@ -27,6 +28,9 @@ export type ConnectorEvent = {
 export type ConnectorConfig = {
   eventsUrl: string;
   connectionToken: string;
+  eventsUrlSource: ConfigValueSource;
+  connectionTokenSource: ConfigValueSource;
+  connectionTokenPreview: string;
   detailLevel: DetailLevel;
   workspaceId?: string;
   petId?: string;
