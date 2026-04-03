@@ -18,7 +18,6 @@
   "files": [
     "index.ts",
     "openclaw.plugin.json",
-    "scripts/configure.mjs",
     "src/classify.ts",
     "src/config.ts",
     "src/git-context.ts",

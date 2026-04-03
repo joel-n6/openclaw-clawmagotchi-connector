@@ -65,8 +65,9 @@ Recommended path:
 
 ```bash
 openclaw plugins install openclaw-clawmagotchi-connector
-node ~/.openclaw/extensions/openclaw-clawmagotchi-connector/scripts/configure.mjs \
-  --connection-token "claw_link_..."
+openclaw plugins enable openclaw-clawmagotchi-connector
+openclaw config set plugins.entries.openclaw-clawmagotchi-connector.config.connectionToken "claw_link_..."
+openclaw gateway restart
 ```
 
 What that does:
@@ -78,13 +79,12 @@ What that does:
 
 This is the most reliable setup for real users, especially on macOS where OpenClaw often runs as a LaunchAgent-managed service.
 
-Optional flags:
+Optional persisted config:
 
-- `--events-url https://...` for non-production or temporary override cases
-- `--workspace-id clawmagotchi`
-- `--detail-level medium`
-- `--no-restart`
-- `--no-enable`
+```bash
+openclaw config set plugins.entries.openclaw-clawmagotchi-connector.config.workspaceId "clawmagotchi"
+openclaw config set plugins.entries.openclaw-clawmagotchi-connector.config.detailLevel "medium"
+```
 
 ### Environment fallback
 
@@ -145,6 +145,13 @@ Manual persisted setup via CLI:
 
 ```bash
 openclaw config set plugins.entries.openclaw-clawmagotchi-connector.config.connectionToken "claw_link_..."
+openclaw gateway restart
+```
+
+Advanced override for non-production backends only:
+
+```bash
+openclaw config set plugins.entries.openclaw-clawmagotchi-connector.config.eventsUrl "https://YOUR_PROJECT.supabase.co/functions/v1/events"
 openclaw gateway restart
 ```
 
