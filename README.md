@@ -59,18 +59,46 @@ Without `plugins.allow`, OpenClaw may still discover and load the connector, but
 
 ## Configure
 
-By default, the connector reads these two environment variables:
+For production installs, persist the connector values into OpenClaw plugin config.
 
-- `CLAWMAGOTCHI_EVENTS_URL`
+Recommended path:
+
+```bash
+openclaw plugins install openclaw-clawmagotchi-connector
+node ~/.openclaw/extensions/openclaw-clawmagotchi-connector/scripts/configure.mjs \
+  --connection-token "claw_link_..."
+```
+
+What that does:
+
+- enables the plugin
+- writes the built-in Clawmagotchi production events URL into `plugins.entries.openclaw-clawmagotchi-connector.config`
+- writes `connectionToken` into `plugins.entries.openclaw-clawmagotchi-connector.config`
+- restarts the gateway
+
+This is the most reliable setup for real users, especially on macOS where OpenClaw often runs as a LaunchAgent-managed service.
+
+Optional flags:
+
+- `--events-url https://...` for non-production or temporary override cases
+- `--workspace-id clawmagotchi`
+- `--detail-level medium`
+- `--no-restart`
+- `--no-enable`
+
+### Environment fallback
+
+The connector can also read these environment variables:
+
 - `CLAWMAGOTCHI_CONNECTION_TOKEN`
+- `CLAWMAGOTCHI_EVENTS_URL` as an advanced override only
 
-This is the recommended setup, and it matches the Clawmagotchi iOS app's copy/share flow.
+For ordinary users, the token is the only required setting. The production events URL is built into the connector. `CLAWMAGOTCHI_EVENTS_URL` remains available only for development or temporary backend override cases.
 
 Example `.env`:
 
 ```dotenv
 CLAWMAGOTCHI_CONNECTION_TOKEN="claw_link_..."
-CLAWMAGOTCHI_EVENTS_URL="https://YOUR_PROJECT.supabase.co/functions/v1/events"
 ```
 
 Then enable the plugin in your OpenClaw config:
@@ -90,7 +118,7 @@ Then enable the plugin in your OpenClaw config:
 }
 ```
 
-If you prefer, you can also set the sensitive values directly in plugin config:
+If you prefer to do the persisted setup manually, you can also set the sensitive values directly in plugin config:
 
 ```json
 {
@@ -102,7 +130,6 @@ If you prefer, you can also set the sensitive values directly in plugin config:
       "openclaw-clawmagotchi-connector": {
         "enabled": true,
         "config": {
-          "eventsUrl": "https://YOUR_PROJECT.supabase.co/functions/v1/events",
           "connectionToken": "claw_link_...",
           "workspaceId": "clawmagotchi"
         }
@@ -113,6 +140,13 @@ If you prefer, you can also set the sensitive values directly in plugin config:
 ```
 
 When both are present, explicit plugin config wins over environment variables.
+
+Manual persisted setup via CLI:
+
+```bash
+openclaw config set plugins.entries.openclaw-clawmagotchi-connector.config.connectionToken "claw_link_..."
+openclaw gateway restart
+```
 
 Optional config:
 

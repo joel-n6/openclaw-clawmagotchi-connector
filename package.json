@@ -18,6 +18,7 @@
   "files": [
     "index.ts",
     "openclaw.plugin.json",
+    "scripts/configure.mjs",
     "src/classify.ts",
     "src/config.ts",
     "src/git-context.ts",
@@ -29,6 +30,9 @@
     "README.md",
     "LICENSE"
   ],
+  "bin": {
+    "clawmagotchi-openclaw-configure": "./scripts/configure.mjs"
+  },
   "openclaw": {
     "extensions": [
       "./index.ts"

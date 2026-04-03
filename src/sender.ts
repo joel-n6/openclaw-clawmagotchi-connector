@@ -22,6 +22,7 @@ async function postEvent(
 ): Promise<void> {
   let attempt = 0;
   let lastError: string | undefined;
+  let invalidTokenHintLogged = false;
 
   while (attempt <= config.retryCount) {
     attempt += 1;
@@ -44,6 +45,22 @@ async function postEvent(
 
       const bodyText = await response.text().catch(() => "");
       lastError = `${response.status} ${response.statusText}${bodyText ? `: ${bodyText}` : ""}`;
+      if (
+        response.status === 401 &&
+        bodyText.includes("Invalid OpenClaw connection token") &&
+        !invalidTokenHintLogged
+      ) {
+        invalidTokenHintLogged = true;
+        logger.warn(
+          [
+            `openclaw-clawmagotchi-connector: token ${config.connectionTokenPreview} was rejected by Clawmagotchi.`,
+            `If you recently rotated your OpenClaw link, update plugins.entries.openclaw-clawmagotchi-connector.config.connectionToken and restart the gateway.`,
+            config.connectionTokenSource === "environment"
+              ? "Env-backed connector config is best for local development; persisted plugin config is the safer production path."
+              : "The persisted plugin config may still contain an older token.",
+          ].join(" "),
+        );
+      }
       if (response.status < 500) {
         break;
       }
