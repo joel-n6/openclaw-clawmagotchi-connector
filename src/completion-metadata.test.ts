@@ -23,6 +23,7 @@ test("buildCompletionMetadata omits git fields by default", () => {
 
   assert.deepEqual(metadata, {
     category: "coding",
+    focus: "coding",
     durationSec: 12,
     sessionDurationSec: 15,
     toolCount: 3,
@@ -30,6 +31,7 @@ test("buildCompletionMetadata omits git fields by default", () => {
     categories: ["coding"],
     provider: undefined,
     channel: undefined,
+    toolHighlights: ["Bash", "Apply Patch"],
   });
 });
 
@@ -53,6 +55,7 @@ test("buildCompletionMetadata includes git fields when explicitly enabled", () =
 
   assert.deepEqual(metadata, {
     category: "coding",
+    focus: "coding",
     durationSec: undefined,
     sessionDurationSec: 18,
     toolCount: 3,
@@ -60,6 +63,7 @@ test("buildCompletionMetadata includes git fields when explicitly enabled", () =
     categories: ["coding"],
     provider: undefined,
     channel: undefined,
+    toolHighlights: ["Bash", "Apply Patch"],
     tools: ["bash", "apply_patch"],
     successfulToolCount: 2,
     failedToolCount: 1,
