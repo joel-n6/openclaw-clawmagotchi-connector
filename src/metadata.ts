@@ -10,6 +10,14 @@ import type {
   PluginHookBeforeModelResolveEvent,
 } from "./openclaw-types.js";
 
+function humanizeIdentifier(value: string): string {
+  return value
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function bucketPromptLength(length: number): string {
   if (length <= 40) return "short";
   if (length <= 160) return "medium";
@@ -32,26 +40,29 @@ export function buildPromptMetadata(
   event: PluginHookBeforeModelResolveEvent,
   ctx: PluginHookAgentContext,
 ): Record<string, unknown> {
+  const base = {
+    category: "communication",
+    focus: "talk",
+  };
+
   switch (detailLevel) {
     case "low":
-      return {
-        category: "general",
-      };
+      return base;
     case "high":
       return {
+        ...base,
         channel: ctx.channelId,
         trigger: ctx.trigger ?? "user",
         provider: ctx.messageProvider,
-        category: "general",
         promptLengthBucket: bucketPromptLength(event.prompt.length),
       };
     case "medium":
     default:
       return {
+        ...base,
         channel: ctx.channelId,
         trigger: ctx.trigger ?? "user",
         provider: ctx.messageProvider,
-        category: "general",
       };
   }
 }
@@ -64,8 +75,10 @@ export function buildToolMetadata(params: {
 }): Record<string, unknown> {
   const base = {
     tool: params.toolName,
+    toolDisplayName: humanizeIdentifier(params.toolName),
     count: 1,
     category: params.classification.category ?? "automation",
+    focus: params.classification.focus ?? "automate",
   };
 
   switch (params.detailLevel) {
@@ -111,8 +124,12 @@ export function buildCompletionMetadata(params: {
   provider?: string;
   channelId?: string;
 }): Record<string, unknown> {
+  const toolHighlights = Array.from(params.tools)
+    .slice(0, 3)
+    .map((toolName) => humanizeIdentifier(toolName));
   const metadata: Record<string, unknown> = {
     category: params.category,
+    focus: params.category,
     toolCount: params.toolCount,
   };
 
@@ -123,6 +140,7 @@ export function buildCompletionMetadata(params: {
     metadata.categories = Array.from(params.categories);
     metadata.provider = params.provider;
     metadata.channel = params.channelId;
+    metadata.toolHighlights = toolHighlights;
   }
 
   if (params.detailLevel === "high") {

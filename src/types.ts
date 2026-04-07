@@ -64,9 +64,18 @@ export type SessionActivity = {
 };
 
 export type ActivityCategory = "automation" | "coding" | "communication" | "organization" | "research";
+export type ActivityFocus =
+  | "build"
+  | "execute"
+  | "inspect"
+  | "organize"
+  | "ship"
+  | "talk"
+  | "automate";
 
 export type ToolClassification = {
   category?: ActivityCategory;
+  focus?: ActivityFocus;
   tags: string[];
 };
 

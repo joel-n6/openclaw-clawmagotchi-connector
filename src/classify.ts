@@ -1,6 +1,8 @@
-import type { ActivityCategory, ToolClassification } from "./types.js";
+import type { ActivityCategory, ActivityFocus, ToolClassification } from "./types.js";
 
-const CODING_TOOL_MATCHERS = ["bash", "exec", "shell", "edit", "patch", "git", "fs", "file", "write"];
+const BUILD_TOOL_MATCHERS = ["edit", "patch", "fs", "file", "write"];
+const EXECUTE_TOOL_MATCHERS = ["bash", "exec", "shell"];
+const SHIP_TOOL_MATCHERS = ["git"];
 const RESEARCH_TOOL_MATCHERS = ["browser", "search", "fetch", "crawl", "scrape", "docs", "web"];
 const ORGANIZATION_TOOL_MATCHERS = ["memory", "note", "todo", "calendar", "tasks", "organize"];
 
@@ -28,21 +30,34 @@ function matchesAny(toolName: string, candidates: string[]): boolean {
 export function classifyTool(toolName: string): ToolClassification {
   const normalized = toolName.trim().toLowerCase();
   let category: ActivityCategory | undefined;
+  let focus: ActivityFocus | undefined;
 
-  if (matchesAny(normalized, CODING_TOOL_MATCHERS)) {
+  if (matchesAny(normalized, BUILD_TOOL_MATCHERS)) {
     category = "coding";
+    focus = "build";
+  } else if (matchesAny(normalized, EXECUTE_TOOL_MATCHERS)) {
+    category = "coding";
+    focus = "execute";
+  } else if (matchesAny(normalized, SHIP_TOOL_MATCHERS)) {
+    category = "coding";
+    focus = "ship";
   } else if (matchesAny(normalized, RESEARCH_TOOL_MATCHERS)) {
     category = "research";
+    focus = "inspect";
   } else if (matchesAny(normalized, ORGANIZATION_TOOL_MATCHERS)) {
     category = "organization";
+    focus = "organize";
   } else if (normalized.includes("message") || normalized.includes("chat")) {
     category = "communication";
+    focus = "talk";
   } else if (normalized) {
     category = "automation";
+    focus = "automate";
   }
 
   return {
     category,
+    focus,
     tags: categoryToTags(category),
   };
 }
